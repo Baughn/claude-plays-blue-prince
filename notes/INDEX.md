@@ -19,7 +19,7 @@ Read this first every session. Keep it short; details live in the linked files.
 - `images/` — cropped screenshots worth keeping (maps, diagrams, text)
 
 ## Current state
-- Day: 2 finished (Call it a Day). Next session starts Day 3.
+- Day: 3 finished (Call it a Day; summary screen showing). Next session starts Day 4.
 - Goals: find the 46th room. Learn the basic mechanics first.
 - Leads:
 
@@ -38,3 +38,11 @@ After Day 2 ends, move the game to a headless session (sway headless + wayvnc or
 - Grounds: west gate won't open; east drive unexplored beyond x≈145; fountain wish costs a coin.
 - Not yet reached the Antechamber (rank 9). Unknown what's needed beyond reaching it.
 - Unread: pause menu Room Directory / House History.
+
+## Day 4 leads (from Day 3)
+- **Pump Room puzzle** (puzzles/pump-room.md): panel + schematic + pump levers. Unsolved; in-room actions cost no steps, so it's cheap to experiment if drafted early.
+- Keys are the bottleneck going north (ranks 5–7 full of locked doors). Billiard Room dartboard = reliable 2 keys (rule known). Closets/Nooks/Storerooms give keys.
+- Security door (Darkroom E wall) stayed shut even with keycard system OFF; terminal settings likely reset daily — set offline mode UNLOCKED *and* cut keycard power the same day.
+- Darkroom breaker was OFF on the breaker box Day 3 (lights?).
+- Grounds: Campsite found E of the Private Drive. User hint about a missed area still open — maybe not outdoors.
+- Tools:  (ASCII top-down),  (PNG), , . Rays pass through some walls (no colliders) — trust eyes for doors.

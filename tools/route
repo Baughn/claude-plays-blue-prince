@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# Walk a sequence of waypoints: tools/route "x z" "x z" ...   (stops on first failure)
+# Walk a sequence of waypoints: tools/route "x z" "x z" ...   (stops if it ends >0.9 m from a waypoint)
 for p in "$@"; do
   r=$("$(dirname "$0")/nav" goto $p 0.45 2>&1 | tail -1)
-  case "$r" in arrived*) ;; *) echo "FAILED at waypoint $p: $r"; exit 1;; esac
+  case "$r" in
+    arrived*) ;;
+    *) d=$(echo "$r" | grep -o '[0-9.]* m from' | cut -d' ' -f1)
+       if [ -z "$d" ] || awk -v d="$d" 'BEGIN{exit !(d>0.9)}'; then echo "FAILED at waypoint $p: $r"; exit 1; fi;;
+  esac
 done
 "$(dirname "$0")/nav" pose

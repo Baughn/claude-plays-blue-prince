@@ -21,3 +21,4 @@ Goal unknown: maybe drain the Fountain (Grounds) or fill something (Aquarium/Gre
 - Pumps: left = Pump 1 (arrow ↑ into left tank = Tank 1), middle = Pump 2 (↕, between tanks), right = Pump 3 (↑ into right tank = Tank 2). Pump 4 not located (probably top/back near Tank 1).
 - Tank gauges (green tanks, scale 0–6): ~2.5 and ~2 at start.
 Ideas to try next time: watch the TANK gauges (not the panel) after flipping; try Pump 4; try Pump 2 "tank switch" (the small box on the pipe between tanks?); maybe the Reserve Tank matters; maybe water only moves when you leave/re-enter the room.
+- Third green tank by the Pump Room W door (Reserve Tank?), level ~1.4/6. W doorway was open into the Darkroom (security door side).
