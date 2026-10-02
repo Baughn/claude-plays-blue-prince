@@ -8,3 +8,7 @@
 - Terminal password (Commissary notice blacked out). Terminals in Security and Laboratory.
 - Test tube "WITH?" / bathtub "WITHOUT?" sticky notes on Commissary board. Bathtub sketch also framed in the Den.
 - Commissary closed Day 12–16: why does it matter?
+- **Chess pieces** around the house: pawns (Den, Storeroom, Bedroom), bishop (Chapel altar). Collect a full set? A chessboard somewhere?
+- Chapel stained-glass windows numbered I–VI(?). Haven't seen IV. Each depicts a figure. Order/meaning?
+- **Blue memos true / red memos lie (unless handwritten?)** (Security notepad). Red card in Commissary says closed Day 12–16 — false? Check colours of every note from now on.
+- Pause menu (Start): Resume / Call it a Day / **Room Directory** / **House History** / Settings / Save&Quit — read Room Directory & House History sometime.

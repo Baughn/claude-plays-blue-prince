@@ -7,7 +7,7 @@ files=()
 for i in 0 1 2 3 4 5 6 7; do
   "$DIR/shot" "${name}_$((i*45))" >/dev/null
   files+=("$S/${name}_$((i*45)).small.jpg")
-  "$DIR/inp" "move 685 0 30" >/dev/null; sleep 0.25
+  "$DIR/nav" turn 45 >/dev/null 2>&1; sleep 0.2
 done
 args=""; for f in "${files[@]}"; do args="$args -label $(basename "$f" .small.jpg | sed "s/^${name}_//")° $f"; done
 nix-shell -p imagemagick --run "magick montage $args -tile 4x -geometry 640x360+3+3 -pointsize 22 '$S/$name.pano.jpg'" >/dev/null

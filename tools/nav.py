@@ -86,16 +86,49 @@ def do_calib():
     print(c)
 
 
-def face(yaw, pitch=None, tol=0.7):
-    c = calib()
-    for _ in range(6):
+def face_stick(yaw, pitch=None, tol=0.8):
+    """Turn with the right stick (safe when the game has released the mouse pointer)."""
+    for _ in range(14):
         _, _, _, y, p = pose()
         dy = wrap(yaw - y)
         dp = 0 if pitch is None else pitch - p
         if abs(dy) < tol and abs(dp) < tol: return
+        # ~70 deg/s at 0.5 deflection; use gentler deflection for small corrections
+        def cmd(d):
+            if abs(d) < tol: return 0.0, 0
+            mag = 0.5 if abs(d) > 15 else 0.3
+            rate = 70.0 if mag == 0.5 else 35.0
+            return (mag if d > 0 else -mag), int(min(2500, max(40, abs(d) / rate * 1000 * 0.85)))
+        sx, tx = cmd(dy); sy, ty = cmd(dp)
+        if tx: inp(f"stick R {sx} 0 {tx}")
+        if ty: inp(f"stick R 0 {sy} {ty}")
+        time.sleep(0.12)
+
+
+def face(yaw, pitch=None, tol=0.7):
+    c = calib()
+    if os.environ.get("NAV_TURN") != "stick":
+        _, _, _, y0, p0 = pose()
+        dy = wrap(yaw - y0)
+        dp = 0 if pitch is None else pitch - p0
+        if abs(dy) < tol and abs(dp) < tol: return
         ux, uy = int(round(dy * c["units_per_deg"])), int(round(dp * c["pitch_units_per_deg"]))
         inp(f"move {ux} {uy} {max(4, int(max(abs(ux), abs(uy)) / 25))}")
         time.sleep(0.15)
+        _, _, _, y1, p1 = pose()
+        if abs(wrap(y1 - y0)) + abs(p1 - p0) < 0.2 * (abs(dy) + abs(dp)):
+            print("mouse not captured; using right stick", file=sys.stderr)
+            return face_stick(yaw, pitch, max(tol, 0.8))
+        for _ in range(5):
+            _, _, _, y, p = pose()
+            dy = wrap(yaw - y)
+            dp = 0 if pitch is None else pitch - p
+            if abs(dy) < tol and abs(dp) < tol: return
+            ux, uy = int(round(dy * c["units_per_deg"])), int(round(dp * c["pitch_units_per_deg"]))
+            inp(f"move {ux} {uy} {max(4, int(max(abs(ux), abs(uy)) / 25))}")
+            time.sleep(0.15)
+    else:
+        face_stick(yaw, pitch, max(tol, 0.8))
 
 
 def goto(tx, tz, tol=0.5, max_iter=40):

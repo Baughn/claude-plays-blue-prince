@@ -19,3 +19,9 @@
 - Right stick at 1.0 ≈ ~100°/s but noisy; don't use it for precise turns.
 - Game renders 2560x1440 pillarboxed inside a 3440x1440 fullscreen window; `shot` crops to that.
 - Whisper: `-mc 0` prevents repetition loops; a lone "Thank you." over music is a hallucination.
+
+## Safety lessons
+- **Never send mouse clicks.** After cutscenes the game can release the pointer; a click then lands on whatever desktop window is under it (happened once: clicked the user's terminal). Use `pad a` for all interaction.
+- `nav face` auto-detects an uncaptured mouse (yaw doesn't change) and falls back to right-stick turning; force with `NAV_TURN=stick`.
+- Right stick: +X = turn right, +Y = look down. ~70°/s at 0.5 deflection.
+- `tools/shot` can fail silently while `tools/record` is capturing (spectacle collision) — retake.
