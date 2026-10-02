@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# 360° survey: 8 shots, 45° apart (starting at current heading, turning right), montaged to shots/NAME.pano.jpg.
+# Ends facing the original heading. Labels: 0 = start heading, 45 = 45° right, etc.
+set -e
+DIR="$(cd "$(dirname "$0")" && pwd)"; S="$DIR/../shots"; name="${1:-pano}"
+files=()
+for i in 0 1 2 3 4 5 6 7; do
+  "$DIR/shot" "${name}_$((i*45))" >/dev/null
+  files+=("$S/${name}_$((i*45)).small.jpg")
+  "$DIR/inp" "move 685 0 30" >/dev/null; sleep 0.25
+done
+args=""; for f in "${files[@]}"; do args="$args -label $(basename "$f" .small.jpg | sed "s/^${name}_//")° $f"; done
+nix-shell -p imagemagick --run "magick montage $args -tile 4x -geometry 640x360+3+3 -pointsize 22 '$S/$name.pano.jpg'" >/dev/null
+echo "$S/$name.pano.jpg"
