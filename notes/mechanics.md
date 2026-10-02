@@ -35,3 +35,6 @@
 
 ## Parlor game (see puzzles/parlor-three-boxes.md)
 - Parlor: 3 boxes (black/white/blue) with statements + a wind-up key on the desk + rules letter. One guess. Prize = gems (2 on Day 2).
+- Locked doors exist: prompt 'THE DOOR IS LOCKED' with USE (key) / EXIT. (Spare Room N door, rank 4→5, Day 2)
+- **Some rooms cost gems to draft**: drafting Commissary took 1 gem (4→3). Check the draft card for a gem cost before picking.
+- Commissary shop (Day 2): Gem(1)=3 coins, Sledge Hammer=8, Set of Gems(4)=10, Running Shoes=8. Opened via basket icon on the register. Exit = B.
