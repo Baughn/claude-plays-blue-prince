@@ -1,5 +1,5 @@
 # Commissary bulletin board (Day 2)
-Image: `../images/commissary-board.png` (+ crops)
+Image: `../images/commissary-board.jpg` (+ crops)
 
 ## Staff Notice (typed)
 > STAFF NOTICE

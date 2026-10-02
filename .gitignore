@@ -9,3 +9,4 @@ backup/
 vendor/
 mod/*/bin/
 mod/*/obj/
+recordings/*/audio16k.wav

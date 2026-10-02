@@ -28,3 +28,5 @@ See `../tools/README.md`.
 ## Pending user request (2026-10-02)
 After Day 2 ends, move the game to a headless session (sway headless + wayvnc or similar) so the user gets their desktop back. Then use only the virtual gamepad (no uinput keyboard/mouse into KDE).
 - TODO with the migration: add probe `cast` (ray from arbitrary origin/dir) to ClaudeProbe and give `nav goto` local obstacle avoidance at knee height (it gets stuck on tables/edges; round table in Entrance Hall centre!).
+- Mod design (user advice): keep ClaudeProbe a **thin proxy** (pose, raw raycast from arbitrary origin/dir, maybe more primitives); put all logic in tools/*.py, editable mid-day. Restarting the game ends the day!
+- User hint (Day 2): "there's one area you haven't looked at yet — a lot of new players miss it for days." Don't ask for more. Guess: the **grounds outside the house** (letter: "abandon the path"). Explore outside.

@@ -1,5 +1,5 @@
 # Breaker box (Utility Closet, Day 2)
-Image: `../images/utility-breaker-box.png`
+Image: `../images/utility-breaker-box.jpg`
 
 DANGER sticker: "TOGGLING OF BREAKER SWITCHES MAY RESULT IN UNEXPECTED LOSS OF FLOORPLAN FUNCTIONALITY. PLEASE CALL D.C. POWER IF YOU REQUIRE ASSISTANCE."
 
