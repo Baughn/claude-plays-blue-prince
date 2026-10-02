@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Virtual keyboard + mouse daemon for playing via uinput.
+"""Virtual keyboard + mouse + Xbox 360 pad daemon for playing via uinput.
 
 Run:   nix-shell -p python3Packages.evdev --run "python3 tools/inputd.py"
 Talk:  tools/inp <command> [; <command> ...]
@@ -13,12 +13,18 @@ Commands (one per line or ';'-separated):
   click [left|right|middle] [ms]
   mdown / mup [btn]    press / release mouse button
   scroll N             wheel clicks (+up / -down)
+  pad BTN [ms]         tap gamepad button: a b x y lb rb back start guide ls rs
+  padhold BTN ms       hold gamepad button
+  dpad DIR [ms]        tap d-pad: up down left right
+  stick L|R X Y ms     hold a stick at X,Y in [-1,1] (Y: -1 = up/forward) for ms, then recenter
+  sticks LX LY RX RY ms  both sticks at once (e.g. walk while turning)
+  trig L|R [ms]        pull a trigger fully for ms
   wait ms
   release              release everything
 Every command batch ends with a release-all. The daemon also releases on exit.
 """
 import os, socket, sys, time, signal
-from evdev import UInput, ecodes as e
+from evdev import UInput, AbsInfo, ecodes as e
 
 SOCK = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".inputd.sock")
 
@@ -26,6 +32,16 @@ KEYS = [v for k, v in e.ecodes.items() if k.startswith("KEY_") and isinstance(v,
 kbd = UInput({e.EV_KEY: KEYS}, name="claude-virtual-keyboard")
 mouse = UInput({e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
                 e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL]}, name="claude-virtual-mouse")
+PAD_BTNS = {"a": e.BTN_SOUTH, "b": e.BTN_EAST, "x": e.BTN_NORTH, "y": e.BTN_WEST, "lb": e.BTN_TL,
+            "rb": e.BTN_TR, "back": e.BTN_SELECT, "start": e.BTN_START, "guide": e.BTN_MODE,
+            "ls": e.BTN_THUMBL, "rs": e.BTN_THUMBR}
+_st = AbsInfo(value=0, min=-32768, max=32767, fuzz=16, flat=128, resolution=0)
+_tr = AbsInfo(value=0, min=0, max=255, fuzz=0, flat=0, resolution=0)
+_hat = AbsInfo(value=0, min=-1, max=1, fuzz=0, flat=0, resolution=0)
+pad = UInput({e.EV_KEY: list(PAD_BTNS.values()),
+              e.EV_ABS: [(e.ABS_X, _st), (e.ABS_Y, _st), (e.ABS_RX, _st), (e.ABS_RY, _st),
+                         (e.ABS_Z, _tr), (e.ABS_RZ, _tr), (e.ABS_HAT0X, _hat), (e.ABS_HAT0Y, _hat)]},
+             name="Microsoft X-Box 360 pad", vendor=0x045e, product=0x028e, version=0x110, bustype=e.BUS_USB)
 time.sleep(1.0)
 
 held_keys, held_btns = set(), set()
@@ -55,7 +71,20 @@ def kup(c):
     kbd.write(e.EV_KEY, c, 0); kbd.syn(); held_keys.discard(c)
 
 
+def pad_center():
+    for a in (e.ABS_X, e.ABS_Y, e.ABS_RX, e.ABS_RY, e.ABS_Z, e.ABS_RZ, e.ABS_HAT0X, e.ABS_HAT0Y):
+        pad.write(e.EV_ABS, a, 0)
+    for b in PAD_BTNS.values():
+        pad.write(e.EV_KEY, b, 0)
+    pad.syn()
+
+
+def axis(v):
+    return int(max(-1.0, min(1.0, float(v))) * 32767)
+
+
 def release_all():
+    pad_center()
     for c in list(held_keys):
         kup(c)
     for b in list(held_btns):
@@ -117,6 +146,31 @@ def run(cmd):
         n = int(a[0]); s = 1 if n > 0 else -1
         for _ in range(abs(n)):
             mouse.write(e.EV_REL, e.REL_WHEEL, s); mouse.syn(); time.sleep(0.03)
+    elif op in ("pad", "padhold"):
+        b = PAD_BTNS[a[0].lower()]
+        ms = a[1] if len(a) > 1 else 80
+        pad.write(e.EV_KEY, b, 1); pad.syn(); sleep_ms(min(float(ms), 15000))
+        pad.write(e.EV_KEY, b, 0); pad.syn()
+    elif op == "dpad":
+        ax, v = {"up": (e.ABS_HAT0Y, -1), "down": (e.ABS_HAT0Y, 1),
+                 "left": (e.ABS_HAT0X, -1), "right": (e.ABS_HAT0X, 1)}[a[0].lower()]
+        pad.write(e.EV_ABS, ax, v); pad.syn(); sleep_ms(a[1] if len(a) > 1 else 80)
+        pad.write(e.EV_ABS, ax, 0); pad.syn()
+    elif op == "stick":
+        ax, ay = (e.ABS_X, e.ABS_Y) if a[0].upper() == "L" else (e.ABS_RX, e.ABS_RY)
+        pad.write(e.EV_ABS, ax, axis(a[1])); pad.write(e.EV_ABS, ay, axis(a[2])); pad.syn()
+        sleep_ms(min(float(a[3]), 15000))
+        pad.write(e.EV_ABS, ax, 0); pad.write(e.EV_ABS, ay, 0); pad.syn()
+    elif op == "sticks":
+        vals = list(zip((e.ABS_X, e.ABS_Y, e.ABS_RX, e.ABS_RY), a[:4]))
+        for ax, v in vals: pad.write(e.EV_ABS, ax, axis(v))
+        pad.syn(); sleep_ms(min(float(a[4]), 15000))
+        for ax, _ in vals: pad.write(e.EV_ABS, ax, 0)
+        pad.syn()
+    elif op == "trig":
+        ax = e.ABS_Z if a[0].upper() == "L" else e.ABS_RZ
+        pad.write(e.EV_ABS, ax, 255); pad.syn(); sleep_ms(a[1] if len(a) > 1 else 80)
+        pad.write(e.EV_ABS, ax, 0); pad.syn()
     elif op == "wait":
         sleep_ms(min(float(a[0]), 30000))
     elif op == "release":
@@ -156,6 +210,9 @@ try:
                 out = "error: %r" % ex
             finally:
                 release_all()
-            conn.sendall(out.encode())
+            try:
+                conn.sendall(out.encode())
+            except OSError as ex:
+                print("client gone:", ex, flush=True)
 finally:
     shutdown()

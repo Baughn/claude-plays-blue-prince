@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Set KWin's acceleration profile to flat for the virtual mouse (needed after every inputd restart).
+for d in $(busctl --user get-property org.kde.KWin /org/kde/KWin/InputDevice org.kde.KWin.InputDeviceManager devicesSysNames | grep -o 'event[0-9]*'); do
+  n=$(busctl --user get-property org.kde.KWin /org/kde/KWin/InputDevice/$d org.kde.KWin.InputDevice name 2>/dev/null)
+  case "$n" in *claude-virtual-mouse*)
+    busctl --user set-property org.kde.KWin /org/kde/KWin/InputDevice/$d org.kde.KWin.InputDevice pointerAccelerationProfileFlat b true
+    echo "flat accel set on $d";;
+  esac
+done

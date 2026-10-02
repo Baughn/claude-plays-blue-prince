@@ -10,5 +10,5 @@ if [ -z "${NOFOCUS:-}" ]; then
     *) echo "REFUSED: focused window is '$name', not the game" >&2; exit 2 ;;
   esac
 fi
-printf '%s\n\n' "$*" | nix run nixpkgs#socat -- - UNIX-CONNECT:"$DIR/.inputd.sock"
+printf '%s\n\n' "$*" | nix run nixpkgs#socat -- -t 120 - UNIX-CONNECT:"$DIR/.inputd.sock"
 echo
