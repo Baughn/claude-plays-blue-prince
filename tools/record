@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Record game audio (default sink monitor) + periodic frames, then transcribe.
+#   tools/record start NAME [frame_interval_s]   -> recordings/NAME/{audio.wav,frames/}
+#   tools/record stop NAME                       -> recordings/NAME/{transcript.srt,transcript.txt,frames/*.jpg}
+#   tools/record transcribe NAME                 -> re-run transcription only
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+D="$ROOT/recordings/${2:?name}"
+SINK=56   # Arctis Nova Pro Wireless; check `wpctl status` if audio is silent
+MODEL="$ROOT/tools/models/ggml-large-v3-turbo-q5_0.bin"
+
+transcribe() {
+  nix-shell -p sox --run "sox '$D/audio.wav' -r 16000 -c 1 '$D/audio16k.wav'" >/dev/null 2>&1
+  nix-shell -p whisper-cpp --run "whisper-cli -m '$MODEL' -l en -t 16 -mc 0 -osrt -otxt -of '$D/transcript' -f '$D/audio16k.wav'" >"$D/whisper.log" 2>&1
+  echo "--- transcript ($D/transcript.srt) ---"; cat "$D/transcript.srt"
+}
+
+case "$1" in
+  start)
+    mkdir -p "$D/frames"
+    setsid pw-record -P '{ stream.capture.sink = true }' --target "$SINK" "$D/audio.wav" >/dev/null 2>&1 &
+    echo $! > "$D/audio.pid"
+    date +%s.%N > "$D/t0"
+    iv="${3:-1}"
+    setsid bash -c "i=0; while true; do spectacle -b -n -a -o '$D/frames/'\$(printf %04d \$i)_\$(date +%s.%N | cut -c1-14).png >/dev/null 2>&1; i=\$((i+1)); sleep $iv; done" >/dev/null 2>&1 &
+    echo $! > "$D/frames.pid"
+    echo "recording to $D"
+    ;;
+  stop)
+    kill -INT "$(cat "$D/audio.pid")" 2>/dev/null || true
+    kill -- -"$(cat "$D/frames.pid")" 2>/dev/null || kill "$(cat "$D/frames.pid")" 2>/dev/null || true
+    sleep 1
+    t0=$(cat "$D/t0")
+    # frames -> 1280-wide jpg named by seconds since start (matches transcript timestamps)
+    for f in "$D"/frames/*.png; do
+      ts=$(basename "$f" .png | cut -d_ -f2)
+      rel=$(awk -v a="$ts" -v b="$t0" 'BEGIN{printf "%06.1f", a-b}')
+      echo "magick '$f' -crop 2560x1440+440+0 +repage -quality 90 '$D/frames/full_t$rel.jpg' && magick '$D/frames/full_t$rel.jpg' -resize 1280x '$D/frames/t$rel.jpg' && rm '$f'"
+    done > "$D/conv.sh"
+    nix-shell -p imagemagick --run "bash '$D/conv.sh'" >/dev/null 2>&1
+    echo "$(ls "$D"/frames/*.jpg | wc -l) frames"
+    transcribe
+    ;;
+  transcribe) transcribe ;;
+esac

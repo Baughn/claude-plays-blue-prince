@@ -1,0 +1,93 @@
+load_backend: loaded CPU backend from /nix/store/7mb5gcf18ay65wy2jng0ln5j80l2r15g-whisper-cpp-1.9.2/lib/libggml-cpu-zen4.so
+whisper_init_from_file_with_params_no_state: loading model from '/home/svein/dev/blueprince/tools/models/ggml-large-v3-turbo-q5_0.bin'
+whisper_init_with_params_no_state: use gpu    = 1
+whisper_init_with_params_no_state: flash attn = 1
+whisper_init_with_params_no_state: gpu_device = 0
+whisper_init_with_params_no_state: dtw        = 0
+whisper_init_with_params_no_state: devices    = 1
+whisper_init_with_params_no_state: backends   = 1
+whisper_model_load: loading model
+whisper_model_load: n_vocab       = 51866
+whisper_model_load: n_audio_ctx   = 1500
+whisper_model_load: n_audio_state = 1280
+whisper_model_load: n_audio_head  = 20
+whisper_model_load: n_audio_layer = 32
+whisper_model_load: n_text_ctx    = 448
+whisper_model_load: n_text_state  = 1280
+whisper_model_load: n_text_head   = 20
+whisper_model_load: n_text_layer  = 4
+whisper_model_load: n_mels        = 128
+whisper_model_load: ftype         = 8
+whisper_model_load: qntvr         = 2
+whisper_model_load: type          = 5 (large v3)
+whisper_model_load: adding 1609 extra tokens
+whisper_model_load: n_langs       = 100
+whisper_model_load:          CPU total size =   573.40 MB
+whisper_model_load: model size    =  573.40 MB
+whisper_backend_init_gpu: device 0: CPU (type: 0)
+whisper_backend_init_gpu: no GPU found
+whisper_init_state: kv self size  =   10.49 MB
+whisper_init_state: kv cross size =   31.46 MB
+whisper_init_state: kv pad  size  =    7.86 MB
+whisper_init_state: compute buffer (conv)   =   36.15 MB
+whisper_init_state: compute buffer (encode) =   55.35 MB
+whisper_init_state: compute buffer (cross)  =    9.27 MB
+whisper_init_state: compute buffer (decode) =   99.12 MB
+read_audio_data: reading audio data from '/home/svein/dev/blueprince/recordings/intro/audio16k.wav' ...
+read_audio_data: trying to decode with miniaudio
+
+system_info: n_threads = 16 / 32 | WHISPER : COREML = 0 | OPENVINO = 0 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VBMI = 1 | AVX512_VNNI = 1 | AVX512_BF16 = 1 | OPENMP = 1 | REPACK = 1 | 
+
+main: processing '/home/svein/dev/blueprince/recordings/intro/audio16k.wav' (3742976 samples, 233.9 sec), 16 threads, 1 processors, 5 beams + best of 5, lang = en, task = transcribe, timestamps = 1 ...
+
+
+[00:00:00.000 --> 00:00:29.980]   Thank you.
+[00:00:30.000 --> 00:00:59.980]   Thank you.
+[00:01:00.000 --> 00:01:16.200]   I, Herbert S. Sinclair, of the Mount Holly estate at Reddington, do publish and declare
+[00:01:16.200 --> 00:01:25.440]   this instrument my last will and testament, and hereby revoke all wills and codicils here
+[00:01:25.440 --> 00:01:27.800]   tofore made by me.
+[00:01:31.400 --> 00:01:41.520]   I give and bequeath to my grandnephew, Simon P. Jones, son of my dear niece, Mary Matthew,
+[00:01:42.420 --> 00:01:51.560]   all of my right, title, and interest in, and to the house and land which I own near Mount
+[00:01:51.560 --> 00:01:51.900]   Holly.
+[00:01:55.400 --> 00:02:02.700]   The above provision and bequest is contingent on my aforementioned grandnephew discovering
+[00:02:02.700 --> 00:02:07.840]   the location of the 46th room of my 45-room estate.
+[00:02:08.940 --> 00:02:16.300]   The location of the room has been kept a secret from all the staff and servants of the manor,
+[00:02:16.740 --> 00:02:24.500]   but I am confident that any heir worthy of the Sinclair legacy should have no trouble uncovering
+[00:02:24.500 --> 00:02:27.840]   its whereabouts within a timely manner.
+[00:02:29.140 --> 00:02:36.400]   Should my grandnephew fail to uncover this room or provide proof of his discovery to the executors
+[00:02:36.400 --> 00:02:41.360]   of my will, then this gift shall lapse.
+[00:02:43.720 --> 00:02:52.300]   In witness whereof, I have hereunto set my hand this 18th day of March, 1993.
+[00:02:53.860 --> 00:02:56.520]   Herbert S. Sinclair
+[00:02:56.520 --> 00:02:58.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:02:58.780 --> 00:03:00.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:00.780 --> 00:03:02.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:02.780 --> 00:03:04.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:04.780 --> 00:03:06.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:06.780 --> 00:03:08.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:08.780 --> 00:03:10.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:10.780 --> 00:03:12.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:12.780 --> 00:03:14.780]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:14.780 --> 00:03:21.040]   The next day of the Sinclair is a great place to be a part of the Sinclair.
+[00:03:21.040 --> 00:03:25.040]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:25.040 --> 00:03:29.040]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:29.040 --> 00:03:33.040]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:33.040 --> 00:03:37.040]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:37.040 --> 00:03:41.040]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:41.040 --> 00:03:44.040]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:44.040 --> 00:03:46.300]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:46.300 --> 00:03:48.300]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:48.300 --> 00:03:50.180]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:50.180 --> 00:03:53.180]   The Sinclair is a great place to be a part of the Sinclair.
+[00:03:53.180 --> 00:03:53.940]   The Sinclair is a great place to be a part of the Sinclair.
+output_txt: saving output to '/home/svein/dev/blueprince/recordings/intro/transcript.txt'
+output_srt: saving output to '/home/svein/dev/blueprince/recordings/intro/transcript.srt'
+
+whisper_print_timings:     load time =   113.34 ms
+whisper_print_timings:     fallbacks =   1 p /   0 h
+whisper_print_timings:      mel time =    57.68 ms
+whisper_print_timings:   sample time =  1289.34 ms /  4180 runs (     0.31 ms per run)
+whisper_print_timings:   encode time = 50464.07 ms /    12 runs (  4205.34 ms per run)
+whisper_print_timings:   decode time =   316.70 ms /   127 runs (     2.49 ms per run)
+whisper_print_timings:   batchd time =  4466.71 ms /  4018 runs (     1.11 ms per run)
+whisper_print_timings:   prompt time =  1271.17 ms /  1767 runs (     0.72 ms per run)
+whisper_print_timings:    total time = 58083.30 ms

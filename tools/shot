@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Screenshot the active window.
+#   tools/shot [name]                  -> shots/<name>.png (full) + shots/<name>.small.jpg (1280 wide)
+#   tools/shot crop NAME WxH+X+Y       -> crop from shots/<NAME>.png at full res -> shots/<NAME>.crop.png
+set -euo pipefail
+DIR="$(cd "$(dirname "$0")/.." && pwd)/shots"
+mkdir -p "$DIR"
+if [ "${1:-}" = "crop" ]; then
+  nix-shell -p imagemagick --run "magick '$DIR/$2.png' -crop '$3' +repage '$DIR/$2.crop.png'" >/dev/null
+  echo "$DIR/$2.crop.png"; exit 0
+fi
+name="${1:-$(date +%H%M%S)}"
+spectacle -b -n -a -o "$DIR/$name.png" >/dev/null 2>&1
+for _ in $(seq 20); do [ -s "$DIR/$name.png" ] && break; sleep 0.1; done
+nix-shell -p imagemagick --run "magick '$DIR/$name.png' -crop 2560x1440+440+0 +repage '$DIR/$name.png'; magick '$DIR/$name.png' -resize 1280x '$DIR/$name.small.jpg'; magick identify -format '%wx%h' '$DIR/$name.png'" 2>/dev/null
+echo " $DIR/$name.small.jpg"

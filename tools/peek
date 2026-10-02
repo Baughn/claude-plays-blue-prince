@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Show the most recent frame of an in-progress recording as a small jpg (path printed).
+f=$(ls "$(dirname "$0")/../recordings/$1/frames/"*.png | tail -1)
+out=/tmp/claude-1000/-home-svein-dev-blueprince/6c922e05-9c1d-4fbf-b0b8-6ad03f5eb5e2/scratchpad/peek.jpg
+nix-shell -p imagemagick --run "magick '$f' -crop 2560x1440+440+0 +repage -resize 960x '$out'" >/dev/null 2>&1
+echo "$(basename "$f") -> $out"

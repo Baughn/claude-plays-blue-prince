@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Print the title of the focused X11/XWayland window (empty if a native Wayland window has focus).
+nix run nixpkgs#xdotool -- getactivewindow getwindowname 2>/dev/null || true

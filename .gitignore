@@ -1,0 +1,8 @@
+shots/
+tools/.inputd.sock
+tools/models/
+recordings/*/frames/*.png
+recordings/*/audio.wav
+recordings/*/frames/full_*.jpg
+recordings/*/*.pid
+backup/

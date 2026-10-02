@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Send commands to inputd, refusing unless the game window has focus.
+# Usage: tools/inp "key w 500; move 200 0"     (set NOFOCUS=1 to skip the check)
+set -euo pipefail
+DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ -z "${NOFOCUS:-}" ]; then
+  name="$("$DIR/focus")"
+  case "$name" in
+    *"BLUE PRINCE"*|*"Blue Prince"*) ;;
+    *) echo "REFUSED: focused window is '$name', not the game" >&2; exit 2 ;;
+  esac
+fi
+printf '%s\n\n' "$*" | nix run nixpkgs#socat -- - UNIX-CONNECT:"$DIR/.inputd.sock"
+echo
