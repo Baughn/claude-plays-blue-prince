@@ -45,4 +45,4 @@ After Day 2 ends, move the game to a headless session (sway headless + wayvnc or
 - Security door (Darkroom E wall) stayed shut even with keycard system OFF; terminal settings likely reset daily — set offline mode UNLOCKED *and* cut keycard power the same day.
 - Darkroom breaker was OFF on the breaker box Day 3 (lights?).
 - Grounds: Campsite found E of the Private Drive. User hint about a missed area still open — maybe not outdoors.
-- Tools:  (ASCII top-down),  (PNG), , . Rays pass through some walls (no colliders) — trust eyes for doors.
+- Tools: nav floor (ASCII top-down), nav map (PNG), tools/route, tools/dart N. Rays pass through some walls (no colliders) — trust eyes for doors.
