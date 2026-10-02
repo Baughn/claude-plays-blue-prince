@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Steam launch wrapper. Launch options for Blue Prince:
+#     /home/svein/dev/blueprince/tools/launch %command%
+# If the headless session (headless/start) is running, the game opens inside it (watch on VNC :5900);
+# otherwise it opens on the normal desktop. BepInEx is enabled either way.
+H=/home/svein/dev/blueprince/headless
+export WINEDLLOVERRIDES="winhttp=n,b${WINEDLLOVERRIDES:+;$WINEDLLOVERRIDES}"
+if [ -s "$H/run/env" ] && systemctl --user is-active -q bp-sway; then
+  read WL X < "$H/run/env"
+  export WAYLAND_DISPLAY="$WL" DISPLAY="$X"
+  unset PROTON_ENABLE_WAYLAND
+  export PULSE_SINK=bp-sink   # silent null sink; record via its monitor
+fi
+echo "$(date) launch DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY" >> "$H/run/launch.log" 2>/dev/null
+exec "$@"

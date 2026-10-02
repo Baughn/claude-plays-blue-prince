@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+systemctl --user stop bp-sway bp-inputd 2>/dev/null
+id=$(pw-cli ls Node 2>/dev/null | awk '/^\tid/{id=$2} /node.name = "bp-sink"/{print id}' | tr -d ,)
+[ -n "$id" ] && pw-cli destroy "$id" >/dev/null
+echo stopped

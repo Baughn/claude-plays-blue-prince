@@ -1,0 +1,5 @@
+# source me: exports WAYLAND_DISPLAY/DISPLAY/SWAYSOCK for the headless session
+H=/home/svein/dev/blueprince/headless
+read WAYLAND_DISPLAY DISPLAY < "$H/run/env"
+export WAYLAND_DISPLAY DISPLAY XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/1000}
+export SWAYSOCK=$XDG_RUNTIME_DIR/sway-ipc.$(id -u).$(systemctl --user show bp-sway -p MainPID --value).sock

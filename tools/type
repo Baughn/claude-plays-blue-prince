@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Type text / keys into the game via the headless sway seat (never reaches the KDE desktop).
+#   tools/type "text"      tools/type -k Return      tools/type -k Escape
+. "$(dirname "$0")/swayenv"
+exec "$H/wtype/bin/wtype" "$@"

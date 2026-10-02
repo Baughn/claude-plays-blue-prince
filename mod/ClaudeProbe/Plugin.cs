@@ -1,11 +1,12 @@
-// Minimal navigation probe for Blue Prince. Uses only generic Unity APIs (camera, physics raycasts).
-// Deliberately reports no object names, tags or game-specific data: geometry only, to avoid spoilers.
+// Thin geometry proxy for Blue Prince. Generic Unity APIs only (camera pose, physics raycasts).
+// Deliberately reports no object names, tags or game-specific data, to avoid spoilers.
+// All logic (scans, navigation, obstacle avoidance) lives in tools/nav.py so it can change mid-day.
 //
-// Line protocol on 127.0.0.1:7777, one request per connection:
-//   pose            -> "x y z yaw pitch"            (camera world position; yaw 0 = +Z, 90 = +X)
-//   ray             -> "dist px py pz nx ny nz"     (crosshair ray, triggers ignored; "none" if no hit within 100m)
-//   scan N [pitch]  -> N distances, evenly spaced over 360° of yaw starting at the current yaw,
-//                      at the given pitch (default 0 = horizontal), from the camera position.
+// Protocol on 127.0.0.1:7777, one connection per request, newline-separated commands,
+// one reply line per command:
+//   pose                          -> "x y z yaw pitch"       (camera; yaw 0 = +Z, 90 = +X; pitch + = down)
+//   cast ox oy oz dx dy dz [max]  -> "dist px py pz nx ny nz" or "none"   (triggers ignored, max default 100)
+//   ray                           -> cast from the camera along its forward vector
 using System;
 using System.Collections.Concurrent;
 using System.Globalization;
@@ -19,7 +20,7 @@ using UnityEngine;
 
 namespace ClaudeProbe;
 
-[BepInPlugin("claude.probe", "ClaudeProbe", "0.1.0")]
+[BepInPlugin("claude.probe", "ClaudeProbe", "0.2.0")]
 public class Plugin : BasePlugin
 {
     public override void Load()
@@ -56,9 +57,11 @@ public class Probe : MonoBehaviour
             {
                 using var client = srv.AcceptTcpClient();
                 using var stream = client.GetStream();
-                var buf = new byte[4096];
-                int n = stream.Read(buf, 0, buf.Length);
-                var req = new Req { Cmd = Encoding.UTF8.GetString(buf, 0, n).Trim() };
+                var ms = new System.IO.MemoryStream();
+                var buf = new byte[65536];
+                int n;
+                while ((n = stream.Read(buf, 0, buf.Length)) > 0) ms.Write(buf, 0, n);
+                var req = new Req { Cmd = Encoding.UTF8.GetString(ms.ToArray()) };
                 Queue.Enqueue(req);
                 string reply = req.Done.Wait(5000) ? req.Reply : "timeout";
                 var outb = Encoding.UTF8.GetBytes(reply + "\n");
@@ -72,45 +75,49 @@ public class Probe : MonoBehaviour
     {
         while (Queue.TryDequeue(out var req))
         {
-            try { req.Reply = Handle(req.Cmd); }
-            catch (Exception e) { req.Reply = "error " + e.Message; }
+            var sb = new StringBuilder();
+            foreach (var line in req.Cmd.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            {
+                string r;
+                try { r = Handle(line.Trim()); }
+                catch (Exception e) { r = "error " + e.Message; }
+                if (sb.Length > 0) sb.Append('\n');
+                sb.Append(r);
+            }
+            req.Reply = sb.ToString();
             req.Done.Set();
         }
     }
 
     static string F(float v) => v.ToString("0.###", Inv);
+    static float P(string s) => float.Parse(s, Inv);
+
+    static string Cast(Vector3 o, Vector3 d, float max)
+    {
+        if (!Physics.Raycast(o, d.normalized, out var hit, max, ~0, QueryTriggerInteraction.Ignore)) return "none";
+        return $"{F(hit.distance)} {F(hit.point.x)} {F(hit.point.y)} {F(hit.point.z)} {F(hit.normal.x)} {F(hit.normal.y)} {F(hit.normal.z)}";
+    }
 
     static string Handle(string cmd)
     {
         var p = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (p.Length == 0) return "";
         var cam = Camera.main;
-        if (cam == null) return "nocam";
-        var t = cam.transform;
-        var e = t.eulerAngles;
-        float pitch = e.x > 180 ? e.x - 360 : e.x;
-        switch (p.Length > 0 ? p[0] : "")
+        switch (p[0])
         {
             case "pose":
+            {
+                if (cam == null) return "nocam";
+                var t = cam.transform; var e = t.eulerAngles;
+                float pitch = e.x > 180 ? e.x - 360 : e.x;
                 return $"{F(t.position.x)} {F(t.position.y)} {F(t.position.z)} {F(e.y)} {F(pitch)}";
+            }
             case "ray":
-            {
-                if (!Physics.Raycast(t.position, t.forward, out var hit, 100f, ~0, QueryTriggerInteraction.Ignore))
-                    return "none";
-                return $"{F(hit.distance)} {F(hit.point.x)} {F(hit.point.y)} {F(hit.point.z)} {F(hit.normal.x)} {F(hit.normal.y)} {F(hit.normal.z)}";
-            }
-            case "scan":
-            {
-                int n = p.Length > 1 ? int.Parse(p[1], Inv) : 36;
-                float sp = p.Length > 2 ? float.Parse(p[2], Inv) : 0f;
-                var sb = new StringBuilder();
-                for (int i = 0; i < n; i++)
-                {
-                    var dir = Quaternion.Euler(sp, e.y + 360f * i / n, 0) * Vector3.forward;
-                    float d = Physics.Raycast(t.position, dir, out var hit, 100f, ~0, QueryTriggerInteraction.Ignore) ? hit.distance : 100f;
-                    sb.Append(F(d)).Append(' ');
-                }
-                return sb.ToString().TrimEnd();
-            }
+                if (cam == null) return "nocam";
+                return Cast(cam.transform.position, cam.transform.forward, 100f);
+            case "cast":
+                return Cast(new Vector3(P(p[1]), P(p[2]), P(p[3])), new Vector3(P(p[4]), P(p[5]), P(p[6])),
+                            p.Length > 7 ? P(p[7]) : 100f);
             default:
                 return "unknown";
         }

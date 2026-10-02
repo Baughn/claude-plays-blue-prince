@@ -10,3 +10,9 @@ vendor/
 mod/*/bin/
 mod/*/obj/
 recordings/*/audio16k.wav
+headless/sway
+headless/wayvnc
+headless/grim
+headless/wtype
+headless/xwayland
+headless/run/

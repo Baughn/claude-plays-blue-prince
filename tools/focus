@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-# Print the title of the focused X11/XWayland window (empty if a native Wayland window has focus).
-nix run nixpkgs#xdotool -- getactivewindow getwindowname 2>/dev/null || true
+# Title of the focused window in the headless sway session.
+. "$(dirname "$0")/swayenv"
+"$H/sway/bin/swaymsg" -t get_tree 2>/dev/null | nix run nixpkgs#jq -- -r '.. | objects | select(.focused? == true) | .name // empty' | head -1

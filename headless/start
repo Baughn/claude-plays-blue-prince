@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Start the headless sway session (+ wayvnc) and the input daemon as systemd user units.
+# Stop everything: headless/stop   (or: systemctl --user stop bp-sway bp-inputd)
+set -euo pipefail
+H="$(cd "$(dirname "$0")" && pwd)"
+mkdir -p "$H/run"; rm -f "$H/run/env"
+RENDER=$(for d in /sys/class/drm/renderD*; do [ "$(cat $d/device/vendor)" = 0x10de ] && echo /dev/dri/$(basename $d); done | head -1)
+systemctl --user reset-failed bp-sway bp-inputd 2>/dev/null || true
+systemd-run --user --unit=bp-sway --collect \
+  -p Environment=PATH="$H/xwayland/bin:/run/current-system/sw/bin" \
+  -p Environment=XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+  -p Environment=WLR_BACKENDS=headless \
+  -p Environment=WLR_LIBINPUT_NO_DEVICES=1 \
+  -p Environment=WLR_RENDER_DRM_DEVICE="$RENDER" \
+  -p Environment=WLR_RENDERER=gles2 \
+  -p Environment=GBM_BACKEND=nvidia-drm \
+  -p Environment=__GLX_VENDOR_LIBRARY_NAME=nvidia \
+  -p Environment=XDG_SESSION_TYPE=wayland \
+  -p UnsetEnvironment=DISPLAY -p UnsetEnvironment=WAYLAND_DISPLAY \
+  "$H/sway/bin/sway" --unsupported-gpu -c "$H/sway.conf"
+for i in $(seq 40); do [ -s "$H/run/env" ] && break; sleep 0.25; done
+cat "$H/run/env"
+systemd-run --user --unit=bp-inputd --collect \
+  nix-shell -p python3Packages.evdev --run "python3 $H/../tools/inputd.py"
+# Silent audio sink for the game (recordable via its monitor); removed on stop.
+if ! pw-cli ls Node 2>/dev/null | grep -q 'node.name = "bp-sink"'; then
+  pw-cli create-node adapter '{ factory.name=support.null-audio-sink node.name=bp-sink node.description="Blue Prince (headless)" media.class=Audio/Sink object.linger=true audio.position=[FL FR] }' >/dev/null
+fi

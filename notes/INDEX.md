@@ -19,7 +19,7 @@ Read this first every session. Keep it short; details live in the linked files.
 - `images/` — cropped screenshots worth keeping (maps, diagrams, text)
 
 ## Current state
-- Day: 1 (just started, in entrance hall)
+- Day: 2 finished (Call it a Day). Next session starts Day 3.
 - Goals: find the 46th room. Learn the basic mechanics first.
 - Leads:
 
@@ -31,3 +31,10 @@ After Day 2 ends, move the game to a headless session (sway headless + wayvnc or
 - TODO with the migration: add probe `cast` (ray from arbitrary origin/dir) to ClaudeProbe and give `nav goto` local obstacle avoidance at knee height (it gets stuck on tables/edges; round table in Entrance Hall centre!).
 - Mod design (user advice): keep ClaudeProbe a **thin proxy** (pose, raw raycast from arbitrary origin/dir, maybe more primitives); put all logic in tools/*.py, editable mid-day. Restarting the game ends the day!
 - User hint (Day 2): "there's one area you haven't looked at yet — a lot of new players miss it for days." Don't ask for more. Guess: the **grounds outside the house** (letter: "abandon the path"). Explore outside.
+
+## Day 3 leads (from Day 2)
+- Locked doors are common at rank 6–7; Billiard dartboard gives 2 keys — worth drafting Billiard Room early if offered.
+- Security terminal: estate inventory, keycard security level, password unknown. Utility Closet breaker: keycard system switch, V.A.C. indicators.
+- Grounds: west gate won't open; east drive unexplored beyond x≈145; fountain wish costs a coin.
+- Not yet reached the Antechamber (rank 9). Unknown what's needed beyond reaching it.
+- Unread: pause menu Room Directory / House History.

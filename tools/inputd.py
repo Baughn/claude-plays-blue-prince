@@ -28,10 +28,12 @@ from evdev import UInput, AbsInfo, ecodes as e
 
 SOCK = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".inputd.sock")
 
-KEYS = [v for k, v in e.ecodes.items() if k.startswith("KEY_") and isinstance(v, int) and v < 0x100]
-kbd = UInput({e.EV_KEY: KEYS}, name="claude-virtual-keyboard")
-mouse = UInput({e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
-                e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL]}, name="claude-virtual-mouse")
+# Pad only: virtual keyboard/mouse devices would deliver input to the user's KDE desktop.
+# For typing into the game, use tools/type (wtype into the headless sway session).
+class _NoDev:
+    def write(self, *a): raise RuntimeError("keyboard/mouse disabled (pad-only daemon); use tools/type for text")
+    def syn(self): pass
+kbd = mouse = _NoDev()
 PAD_BTNS = {"a": e.BTN_SOUTH, "b": e.BTN_EAST, "x": e.BTN_NORTH, "y": e.BTN_WEST, "lb": e.BTN_TL,
             "rb": e.BTN_TR, "back": e.BTN_SELECT, "start": e.BTN_START, "guide": e.BTN_MODE,
             "ls": e.BTN_THUMBL, "rs": e.BTN_THUMBR}
@@ -85,10 +87,7 @@ def axis(v):
 
 def release_all():
     pad_center()
-    for c in list(held_keys):
-        kup(c)
-    for b in list(held_btns):
-        mouse.write(e.EV_KEY, b, 0); mouse.syn(); held_btns.discard(b)
+    held_keys.clear(); held_btns.clear()
 
 
 def sleep_ms(ms):

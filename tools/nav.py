@@ -67,16 +67,19 @@ def calib():
 
 
 def do_calib():
+    """Measure right-stick turn rates and walking speed. Run somewhere with room to walk forward ~3 m."""
     c = calib()
-    _, _, _, y0, p0 = pose()
-    inp("move 1500 0 50"); time.sleep(0.3)
-    _, _, _, y1, _ = pose()
-    inp("move -1500 0 50"); time.sleep(0.3)
-    c["units_per_deg"] = 1500 / wrap(y1 - y0)
-    inp("move 0 300 20"); time.sleep(0.3)
-    _, _, _, _, p1 = pose()
-    inp("move 0 -300 20"); time.sleep(0.3)
-    c["pitch_units_per_deg"] = 300 / (p1 - p0) if abs(p1 - p0) > 0.1 else c["pitch_units_per_deg"]
+    rates = {}
+    for mag in ("0.5", "0.25"):
+        _, _, _, y0, p0 = pose()
+        inp(f"stick R {mag} 0 1000"); time.sleep(0.25)
+        _, _, _, y1, _ = pose()
+        inp(f"stick R -{mag} 0 1000"); time.sleep(0.25)
+        inp(f"stick R 0 {mag} 400"); time.sleep(0.25)
+        _, _, _, _, p1 = pose()
+        inp(f"stick R 0 -{mag} 400"); time.sleep(0.25)
+        rates[mag] = [abs(wrap(y1 - y0)) / 1.0, max(5.0, abs(p1 - p0) / 0.4)]
+    c["stick_rates"] = rates
     x0, _, z0, _, _ = pose()
     inp("stick L 0 -1 1000"); time.sleep(0.3)
     x1, _, z1, _, _ = pose()
@@ -87,27 +90,28 @@ def do_calib():
 
 
 def face_stick(yaw, pitch=None, tol=0.8):
-    """Turn with the right stick (safe when the game has released the mouse pointer)."""
-    for _ in range(14):
+    """Turn with the right stick. Rates (deg/s at each deflection) come from nav_calib.json (tools/nav calib)."""
+    c = calib()
+    rates = c.get("stick_rates", {"0.5": [70.0, 70.0], "0.25": [35.0, 35.0]})
+    for _ in range(10):
         _, _, _, y, p = pose()
         dy = wrap(yaw - y)
         dp = 0 if pitch is None else pitch - p
         if abs(dy) < tol and abs(dp) < tol: return
-        # ~70 deg/s at 0.5 deflection; use gentler deflection for small corrections
-        def cmd(d):
+        def cmd(d, axis):
             if abs(d) < tol: return 0.0, 0
-            mag = 0.5 if abs(d) > 15 else 0.3
-            rate = 70.0 if mag == 0.5 else 35.0
-            return (mag if d > 0 else -mag), int(min(2500, max(40, abs(d) / rate * 1000 * 0.85)))
-        sx, tx = cmd(dy); sy, ty = cmd(dp)
+            mag = "0.5" if abs(d) > 12 else "0.25"
+            rate = rates[mag][axis]
+            return (float(mag) if d > 0 else -float(mag)), int(min(4000, max(30, abs(d) / rate * 1000)))
+        sx, tx = cmd(dy, 0); sy, ty = cmd(dp, 1)
         if tx: inp(f"stick R {sx} 0 {tx}")
         if ty: inp(f"stick R 0 {sy} {ty}")
-        time.sleep(0.12)
+        time.sleep(0.1)
 
 
 def face(yaw, pitch=None, tol=0.7):
     c = calib()
-    if os.environ.get("NAV_TURN") != "stick":
+    if os.environ.get("NAV_TURN") == "mouse":
         _, _, _, y0, p0 = pose()
         dy = wrap(yaw - y0)
         dp = 0 if pitch is None else pitch - p0
@@ -182,16 +186,28 @@ def approach(yaw, pitch, px, py, standoff=1.2):
     print(f"target {hx:.2f} {hy:.2f} {hz:.2f}; now at", " ".join(f"{v:.2f}" for v in pose()))
 
 
-def scan(n=72):
-    r = probe(f"scan {n} 0")
-    ds = [float(v) for v in r.split()]
-    _, _, _, yaw, _ = pose()
-    print(f"scan from yaw {yaw:.0f} (relative angle: distance m)")
-    rows = []
-    for i, d in enumerate(ds):
+def casts(rays):
+    """Batch raycasts: rays = [(ox,oy,oz,dx,dy,dz,max), ...] -> list of (dist, (px,py,pz)) or None."""
+    out = []
+    lines = probe("\n".join("cast " + " ".join(f"{v:.4f}" for v in r) for r in rays)).split("\n")
+    for ln in lines:
+        v = ln.split()
+        out.append(None if not v or v[0] in ("none", "error", "unknown") else (float(v[0]), tuple(map(float, v[1:4]))))
+    return out
+
+
+def scan(n=72, height=None):
+    """Horizontal distance ring around the player (height = absolute y; default eye level)."""
+    x, y, z, yaw, _ = pose()
+    h = y if height is None else height
+    rays = [(x, h, z, math.sin(math.radians(yaw + 360 * i / n)), 0, math.cos(math.radians(yaw + 360 * i / n)), 100)
+            for i in range(n)]
+    res = casts(rays)
+    print(f"scan from yaw {yaw:.0f} at y={h:.2f} (relative angle: distance m)")
+    for i, r in enumerate(res):
+        d = r[0] if r else 100.0
         a = 360 * i / n
-        rows.append(f"{a:5.0f}°→{(yaw + a) % 360:5.0f}: {d:5.2f} " + "#" * int(min(d, 30) * 2))
-    print("\n".join(rows))
+        print(f"{a:5.0f}°→{(yaw + a) % 360:5.0f}: {d:5.2f} " + "#" * int(min(d, 30) * 2))
 
 
 def main():
