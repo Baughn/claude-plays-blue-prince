@@ -24,3 +24,7 @@ Read this first every session. Keep it short; details live in the linked files.
 
 ## Controls / tooling
 See `../tools/README.md`.
+
+## Pending user request (2026-10-02)
+After Day 2 ends, move the game to a headless session (sway headless + wayvnc or similar) so the user gets their desktop back. Then use only the virtual gamepad (no uinput keyboard/mouse into KDE).
+- TODO with the migration: add probe `cast` (ray from arbitrary origin/dir) to ClaudeProbe and give `nav goto` local obstacle avoidance at knee height (it gets stuck on tables/edges; round table in Entrance Hall centre!).
