@@ -38,3 +38,7 @@
 - Locked doors exist: prompt 'THE DOOR IS LOCKED' with USE (key) / EXIT. (Spare Room N door, rank 4→5, Day 2)
 - **Some rooms cost gems to draft**: drafting Commissary took 1 gem (4→3). Check the draft card for a gem cost before picking.
 - Commissary shop (Day 2): Gem(1)=3 coins, Sledge Hammer=8, Set of Gems(4)=10, Running Shoes=8. Opened via basket icon on the register. Exit = B.
+- Tutorial card (Drawing Room): "Each time you click on a door, you will DRAW three floorplans, from which you must select one to draft. However, there are some items and rooms that will allow you to 'redraw' if you do not like your initial three options." Drawing Room = can redraw while drafting from it.
+- Drafting Drawing Room cost 1 gem (3→2).
+- Locked door with 0 keys: no prompt, just a brief 'locked.' text flash (easy to miss — use tools/record to catch it). Drawing Room E door (col2 r5) was locked, Day 2.
+- **Fruit restores steps**: orange = +5 steps (Pantry, Day 2). Note implies apples/bananas too. Eat with A (hand icon).
