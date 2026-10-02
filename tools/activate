@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Focus the game window (exact title, not the BepInEx console).
+nix run nixpkgs#xdotool -- search --name '^BLUE PRINCE$' windowactivate 2>/dev/null
+sleep 0.4; "$(dirname "$0")/focus"

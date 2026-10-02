@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Query the in-game ClaudeProbe plugin: tools/probe pose | ray | scan N [pitch]
+printf '%s' "$*" | nix run nixpkgs#socat -- -t 6 - TCP:127.0.0.1:7777

@@ -7,3 +7,5 @@ recordings/*/frames/full_*.jpg
 recordings/*/*.pid
 backup/
 vendor/
+mod/*/bin/
+mod/*/obj/

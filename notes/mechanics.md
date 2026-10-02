@@ -26,3 +26,12 @@
 
 ## Rooms seen in drafts (Day 1)
 - Bedroom (W,S rel.) +2 steps on entry · Closet (S only) 2 items · Hallway (T: L,R,S) · Nook (S,R) +1 key · Den (U,S,R; fireplace on L) +1 gem · Corridor (U,S) always unlocked
+
+## Days
+- Quitting to menu mid-day ENDS the day: on return it was Day 2 with a fresh map. Finish/"call it a day" before restarting the game.
+- Each day starts at 8:00 on the clock tower (outside by the fountain, walking up to the door). Map resets to Entrance Hall + Antechamber only.
+- Walking out the front door and back in costs steps (lost 2 on Day 2 doing that). Calibrate/test indoors.
+- User says there is no real-time limit.
+
+## Parlor game (see puzzles/parlor-three-boxes.md)
+- Parlor: 3 boxes (black/white/blue) with statements + a wind-up key on the desk + rules letter. One guess. Prize = gems (2 on Day 2).

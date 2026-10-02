@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec nix-shell -p python3 --run "python3 $(dirname "$0")/nav.py $*"
