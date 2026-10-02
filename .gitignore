@@ -6,3 +6,4 @@ recordings/*/audio.wav
 recordings/*/frames/full_*.jpg
 recordings/*/*.pid
 backup/
+vendor/

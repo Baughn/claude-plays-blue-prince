@@ -14,3 +14,15 @@
 ## Controls (gamepad)
 - A = interact (eye icon = read/inspect, hand icon = pick up). B = back/close. D-pad L/R = turn pages. RT = Blueprint menu.
 - Crosshair is a tiny triangle at screen center; changes to an icon on interactables.
+
+## Drafting
+- Opening an unexplored door → "SELECT A ROOM TO DRAFT": choose 1 of 3 rooms. The room is placed in the grid cell behind the door.
+- Draft tiles are drawn with the **entry door at the bottom**; when placed they rotate so the bottom faces the door you came through.
+  (Entering eastward: tile-up = east, tile-left = north, tile-right = south.)
+- Each entry into a room costs 1 step (49 after entering first room). Bedroom: "Whenever you enter this room, gain 2 steps".
+- Room colours: purple = bedroom, blue = regular rooms (Closet, Nook, Den), orange = hallways (Hallway, Corridor).
+- Rooms can list contents: Closet "2 items", Nook "+1 key", Den "+1 gem". Corridor: "always left unlocked" → other doors can be locked.
+- Room name + "Rank N" shown bottom-right in the room. Rank = row counted from the bottom (Entrance Hall = rank 1, Antechamber = rank 9).
+
+## Rooms seen in drafts (Day 1)
+- Bedroom (W,S rel.) +2 steps on entry · Closet (S only) 2 items · Hallway (T: L,R,S) · Nook (S,R) +1 key · Den (U,S,R; fireplace on L) +1 gem · Corridor (U,S) always unlocked
