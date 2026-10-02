@@ -1,5 +1,16 @@
 {
  "units_per_deg": 15.151974302251581,
  "pitch_units_per_deg": 15.15228041820294,
- "speed": 3.479776142225244
+ "speed": 3.510832522351357,
+ "stick_rates": {
+  "0.5": [
+   71.5,
+   48.0
+  ],
+  "0.3": [
+   14.5,
+   9.7
+  ]
+ },
+ "stick_note": "yaw deg/s ~= 285*(mag-0.25), saturates ~109 at mag>=0.65; pitch ~= 0.67*yaw; linear in time"
 }

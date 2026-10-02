@@ -70,7 +70,7 @@ def do_calib():
     """Measure right-stick turn rates and walking speed. Run somewhere with room to walk forward ~3 m."""
     c = calib()
     rates = {}
-    for mag in ("0.5", "0.25"):
+    for mag in ("0.5", "0.3"):
         _, _, _, y0, p0 = pose()
         inp(f"stick R {mag} 0 1000"); time.sleep(0.25)
         _, _, _, y1, _ = pose()
@@ -92,7 +92,7 @@ def do_calib():
 def face_stick(yaw, pitch=None, tol=0.8):
     """Turn with the right stick. Rates (deg/s at each deflection) come from nav_calib.json (tools/nav calib)."""
     c = calib()
-    rates = c.get("stick_rates", {"0.5": [70.0, 70.0], "0.25": [35.0, 35.0]})
+    rates = c.get("stick_rates", {"0.5": [71.5, 48.0], "0.3": [14.5, 9.7]})
     for _ in range(10):
         _, _, _, y, p = pose()
         dy = wrap(yaw - y)
@@ -100,7 +100,7 @@ def face_stick(yaw, pitch=None, tol=0.8):
         if abs(dy) < tol and abs(dp) < tol: return
         def cmd(d, axis):
             if abs(d) < tol: return 0.0, 0
-            mag = "0.5" if abs(d) > 12 else "0.25"
+            mag = "0.5" if abs(d) > 4 else "0.3"
             rate = rates[mag][axis]
             return (float(mag) if d > 0 else -float(mag)), int(min(4000, max(30, abs(d) / rate * 1000)))
         sx, tx = cmd(dy, 0); sy, ty = cmd(dp, 1)
@@ -135,29 +135,56 @@ def face(yaw, pitch=None, tol=0.7):
         face_stick(yaw, pitch, max(tol, 0.8))
 
 
-def goto(tx, tz, tol=0.5, max_iter=40):
+def clearance(x, y, z, heading, reach=6.0):
+    """Free distance along heading for a body ~0.6 m wide, checked at knee and waist height."""
+    h = math.radians(heading)
+    fx, fz = math.sin(h), math.cos(h)
+    rx, rz = fz, -fx
+    rays = []
+    for dy in (-1.3, -0.8):          # camera is ~1.68 above the floor
+        for off in (-0.3, 0.0, 0.3):
+            rays.append((x + rx * off, y + dy, z + rz * off, fx, 0, fz, reach))
+    res = casts(rays)
+    return min((r[0] if r else reach) for r in res)
+
+
+def goto(tx, tz, tol=0.5, max_iter=60):
+    """Walk to (tx, tz). Steers around obstacles using knee/waist raycasts; reports if it can't get there."""
     c = calib()
     stuck = 0
     for _ in range(max_iter):
-        x, _, z, y, _ = pose()
+        x, y, z, yaw, _ = pose()
         dx, dz = tx - x, tz - z
         d = math.hypot(dx, dz)
         if d < tol:
             print(f"arrived {x:.2f} {z:.2f} (d={d:.2f})"); return True
-        face(math.degrees(math.atan2(dx, dz)))
-        ms = int(min(1500, max(120, d / c["speed"] * 1000 * 0.8)))
-        inp(f"stick L 0 -1 {ms}"); time.sleep(0.15)
+        want = math.degrees(math.atan2(dx, dz)) % 360
+        need = min(d, 2.0)
+        heading, free = want, clearance(x, y, z, want)
+        if free < need:
+            # try deviations, nearest to the desired heading first
+            best = None
+            for dev in (20, -20, 40, -40, 60, -60, 90, -90, 120, -120):
+                f = clearance(x, y, z, want + dev)
+                if f >= min(need, 1.2):
+                    best = (want + dev, f); break
+            if best is None:
+                print(f"blocked at {x:.2f} {z:.2f}, {d:.2f} m from target"); return False
+            heading, free = best[0] % 360, best[1]
+        face(heading)
+        walk = min(need, free - 0.35) if heading != want else min(d, free - 0.35)
+        walk = max(walk, 0.25)
+        ms = int(min(1500, max(100, walk / c["speed"] * 1000)))
+        inp(f"stick L 0 -1 {ms}"); time.sleep(0.1)
         x2, _, z2, _, _ = pose()
         if math.hypot(x2 - x, z2 - z) < 0.05:
             stuck += 1
-            side = 1 if stuck % 2 else -1
-            inp(f"stick L {side} 0 400"); time.sleep(0.1)
-            if stuck > 4:
+            if stuck > 3:
                 print(f"stuck at {x2:.2f} {z2:.2f}, {d:.2f} m from target"); return False
+            inp(f"stick L {1 if stuck % 2 else -1} 0 350"); time.sleep(0.1)
+        else:
+            stuck = 0
     print("gave up"); return False
-
-
-F_PX = 586.0  # focal length in 1280-wide pixels (hFOV ~95 deg); refine via calib_fov
 
 
 def pixel_dir(yaw, pitch, px, py):
