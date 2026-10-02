@@ -24,3 +24,9 @@ Used the wind-up key on the BLUE box's side keyhole → opened; contained **2 ge
 Notes for future Parlors: statements and contents are probably randomised per draft. Method: enumerate truth assignments
 satisfying (≥1 all-true box, ≥1 all-false box, exactly 1 prize), then pick the box consistent with the rest.
 Only one wind-up key per Parlor (one guess). The key goes in a keyhole on the box's side.
+
+## Day 3 instance
+- WHITE: "THIS IS THE BLACK BOX." (false)  BLUE: "THIS IS THE BLACK BOX." (false)  BLACK: "THE BLACK BOX IS NOT EMPTY."
+- Need ≥1 true box → only black can be true → prize in BLACK.
+- Labels are on the box LIDS this time (Day 2 was side panels?) — read lids up close.
+  → Opened BLACK: 2 gems ✓ (gems 3).

@@ -15,3 +15,8 @@ Each round shades segments; answer = a sector number. No visible "correct" feedb
 ## RULE (confirmed)
 Rings from centre outward = chalkboard ops top to bottom: inner single (blue) = +, treble (yellow) = −, outer single (pink) = ×, double ring (colour?) = ÷ (not yet seen).
 Apply in ring order (inside → out). Blue values are the starting/added numbers. 6 rounds; no penalty observed.
+
+## Day 3 instance (dartboard on N wall)
+R1 blue 16 → 16 ✓. R2 blue 1,9,3 → 13 ✓. R3 blue 9,4, yellow 6 → 7 ✓. R4 blue 15, yellow 11, pink 3 → 12 ✓. R5 blue 9, yellow 1, pink 2 → 16 ✓ → opened, **2 keys**. (5 rounds this time.)
+Helper: `tools/dart N [throw]` selects sector N.
+Order of operations so far: all blues summed, then −yellow, then ×pink. Not yet seen ÷ (double ring).

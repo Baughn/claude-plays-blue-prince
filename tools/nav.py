@@ -142,17 +142,21 @@ def clearance(x, y, z, heading, reach=6.0):
     rx, rz = fz, -fx
     rays = []
     for dy in (-1.3, -0.8):          # camera is ~1.68 above the floor
-        for off in (-0.3, 0.0, 0.3):
+        for off in (-0.22, 0.0, 0.22):
             rays.append((x + rx * off, y + dy, z + rz * off, fx, 0, fz, reach))
     res = casts(rays)
     return min((r[0] if r else reach) for r in res)
 
 
-def goto(tx, tz, tol=0.5, max_iter=60):
+def goto(tx, tz, tol=0.5, max_iter=60, timeout=40.0):
     """Walk to (tx, tz). Steers around obstacles using knee/waist raycasts; reports if it can't get there."""
     c = calib()
     stuck = 0
+    t_end = time.time() + timeout
     for _ in range(max_iter):
+        if time.time() > t_end:
+            x, _, z, _, _ = pose()
+            print(f"timeout at {x:.2f} {z:.2f}, {math.hypot(tx - x, tz - z):.2f} m from target"); return False
         x, y, z, yaw, _ = pose()
         dx, dz = tx - x, tz - z
         d = math.hypot(dx, dz)
@@ -185,6 +189,9 @@ def goto(tx, tz, tol=0.5, max_iter=60):
         else:
             stuck = 0
     print("gave up"); return False
+
+
+F_PX = 586.0  # focal length in 1280-wide pixels (hFOV ~95 deg)
 
 
 def pixel_dir(yaw, pitch, px, py):
@@ -237,6 +244,68 @@ def scan(n=72, height=None):
         print(f"{a:5.0f}°→{(yaw + a) % 360:5.0f}: {d:5.2f} " + "#" * int(min(d, 30) * 2))
 
 
+def heightmap(cx, cz, half=6.0, step=0.2, top=2.3, out=None):
+    """Top-down map: cast down from y=top over a grid. Writes a PNG (white=floor, darker=taller, red=no hit/solid)."""
+    import struct, zlib
+    n = int(2 * half / step) + 1
+    pts = [(cx - half + i * step, cz + half - j * step) for j in range(n) for i in range(n)]
+    hs = []
+    for k in range(0, len(pts), 400):
+        res = casts([(x, top, z, 0, -1, 0, top + 3) for x, z in pts[k:k + 400]])
+        hs += [None if r is None else r[1][1] for r in res]
+    fl = sorted(h for h in hs if h is not None)
+    floor = fl[len(fl) // 10] if fl else 0.0
+    x0, _, z0, yaw, _ = pose()
+    scale = 8
+    W = n * scale
+    rows = []
+    for j in range(n):
+        row = bytearray()
+        for i in range(n):
+            h = hs[j * n + i]
+            if h is None: c = (200, 40, 40)
+            else:
+                d = max(0.0, min(2.3, h - floor))
+                g = int(255 - d / 2.3 * 220)
+                c = (g, g, g) if d > 0.05 else (250, 250, 235)
+            row += bytes(c) * scale
+        for _ in range(scale): rows.append(bytearray(row))
+    # lidar overlay: horizontal rays from the player at knee and chest height
+    def put(wx, wz, col):
+        ii, jj = int((wx - (cx - half)) / step * scale), int(((cz + half) - wz) / step * scale)
+        for a in range(-1, 2):
+            for b in range(-1, 2):
+                if 0 <= jj + a < W and 0 <= ii + b < W: rows[jj + a][(ii + b) * 3:(ii + b) * 3 + 3] = bytes(col)
+    xl, yl, zl, _, _ = pose()
+    for hgt, col in ((0.5, (230, 120, 0)), (1.3, (150, 0, 150))):
+        rays = [(xl, hgt, zl, math.sin(math.radians(k * 0.5)), 0, math.cos(math.radians(k * 0.5)), 2 * half) for k in range(720)]
+        for k in range(0, 720, 360):
+            for r in casts(rays[k:k + 360]):
+                if r: put(r[1][0], r[1][2], col)
+    # player marker + heading
+    pi, pj = int((x0 - (cx - half)) / step), int(((cz + half) - z0) / step)
+    for t in range(0, 12):
+        qi = pi + int(round(math.sin(math.radians(yaw)) * t * 0.5)); qj = pj - int(round(math.cos(math.radians(yaw)) * t * 0.5))
+        for a in range(-1, 2):
+            for b in range(-1, 2):
+                yy, xx = qj * scale + 1 + a, qi * scale + 1 + b
+                if 0 <= yy < W and 0 <= xx < W: rows[yy][xx*3:xx*3+3] = bytes((30, 90, 255))
+    # grid lines every metre
+    raw = b''
+    for y, r in enumerate(rows):
+        wz = (cz + half) - (y / scale) * step
+        for i in range(n):
+            wx = cx - half + i * step
+            if abs(wx - round(wx)) < step / 2 and abs(wx - round(wx)) <= abs(wx + step - round(wx + step)):
+                pass
+        raw += b'\x00' + bytes(r)
+    def chunk(t, d): return struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
+    png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', W, W, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+    out = out or os.path.join(HERE, '..', 'shots', 'map.png')
+    open(out, 'wb').write(png)
+    print(f"map {out}: centre ({cx:.1f},{cz:.1f}) ±{half} m, {step} m/px*{scale}; up = north; floor y={floor:.2f}; player blue, lidar orange=0.5 m purple=1.3 m")
+
+
 def main():
     a = sys.argv[1:]
     if not a: print(__doc__); return
@@ -261,6 +330,10 @@ def main():
     elif cmd == "near":
         _, _, _, y, p = pose(); approach(y, p, float(a[1]), float(a[2]), float(a[3]) if len(a) > 3 else 1.0)
     elif cmd == "approach": approach(*map(float, a[1:6]))
+    elif cmd == "map":
+        if len(a) >= 3: heightmap(float(a[1]), float(a[2]), float(a[3]) if len(a) > 3 else 6.0)
+        else:
+            x, _, z, _, _ = pose(); heightmap(x, z)
     elif cmd == "calib": do_calib()
     else: print(__doc__)
 

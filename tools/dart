@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Select dartboard sector N (in the dartboard close-up). Usage: tools/dart 16 [throw]
+order=(20 1 18 4 13 6 10 15 2 17 3 19 7 16 8 11 14 9 12 5)
+for i in "${!order[@]}"; do [ "${order[$i]}" = "$1" ] && idx=$i; done
+read x y < <(awk -v i="$idx" 'BEGIN{a=i*18*3.14159265/180; printf "%.3f %.3f", sin(a), -cos(a)}')
+"$(dirname "$0")/inp" "stick L $x $y 1200" >/dev/null
+[ "$2" = throw ] && { sleep 0.4; "$(dirname "$0")/inp" "pad a" >/dev/null; sleep 3.5; }
+echo "sector $1 -> stick $x $y"

@@ -45,3 +45,9 @@
 - Blueprint map: LT opens a **day history** (per-day map + stats). Day One was titled 'MT. HOLLY — ABANDONED PROJECT' (4 rooms, rank 1, 2 steps, 0 items) — because I quit to menu mid-day.
 - Day end summary gives the house a title by size (Day 1 abandoned → "Abandoned Project"; 20 rooms → "Charming Cottage"). "Items Found" excludes keys/gems/coins → real *items* (tools?) exist.
 - Quitting the game mid-day abandons the day. End days with Call it a Day.
+- **Coat Check** room exists: 'Check one item and retrieve it on another day' → cross-day item storage!
+- **Banana = +3 steps** (orange +5).
+- Door positions: the BLUEPRINT tile preview (RT, top-left of map) shows exact door gaps. Doors so far always at/near edge midpoints. Bedroom (this variant) = S+E only.
+- Green rooms (e.g. Terrace) don't cost gems to draft.
+- Chapel charges the coin EVERY time you pass through (lost 3 coins on Day 3 going back and forth). Avoid routing through it twice.
+- **Items** exist (counted in 'Items Found'): first one = **Small Coin Purse** (Parlor side table, Day 3): every 3 coins collected → +1 coin interest. Items appear in INVENTORY on the blueprint.

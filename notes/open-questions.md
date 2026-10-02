@@ -15,3 +15,4 @@
 - V.A.C. indicators puzzle (6 bulbs, off/green/red) — puzzles/vac-indicators.md
 - Wishing fountain (Grounds): spent 1 coin Day 2, no visible effect. Does it do anything (tomorrow? cumulative?)
 - West gate on the Grounds won't open (no key prompt). What opens it?
+- Den clocks (Day 3): grandfather ≈4:27, wall ≈10:30 & ≈11:30, mantel ≈10:32 (rough). Clocks across the house disagree — record them all; maybe meaningless.
