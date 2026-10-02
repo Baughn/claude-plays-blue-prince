@@ -306,6 +306,25 @@ def heightmap(cx, cz, half=6.0, step=0.2, top=2.3, out=None):
     print(f"map {out}: centre ({cx:.1f},{cz:.1f}) ±{half} m, {step} m/px*{scale}; up = north; floor y={floor:.2f}; player blue, lidar orange=0.5 m purple=1.3 m")
 
 
+def floor(cx, cz, half=5.5, step=0.5):
+    """ASCII top-down map (north up). . floor  ~ sunken  o low obstacle  X tall  # wall/void  @ player"""
+    x0, _, z0, yaw, _ = pose()
+    n = int(2 * half / step) + 1
+    xs = [cx - half + i * step for i in range(n)]
+    print(f"x {xs[0]:.1f}..{xs[-1]:.1f} step {step}; rows z from {cz+half:.1f} down to {cz-half:.1f}")
+    for j in range(n):
+        z = cz + half - j * step
+        r = casts([(x, 1.5, z, 0, -1, 0, 5) for x in xs])
+        row = ''
+        for x, v in zip(xs, r):
+            if abs(x - x0) < step / 2 and abs(z - z0) < step / 2: row += '@'; continue
+            if v is None: row += '#'
+            else:
+                h = v[1][1]
+                row += '~' if h < -0.2 else '.' if h < 0.15 else 'o' if h < 1.3 else 'X'
+        print(f"{z:6.1f} {row}")
+
+
 def main():
     a = sys.argv[1:]
     if not a: print(__doc__); return
@@ -334,6 +353,10 @@ def main():
         if len(a) >= 3: heightmap(float(a[1]), float(a[2]), float(a[3]) if len(a) > 3 else 6.0)
         else:
             x, _, z, _, _ = pose(); heightmap(x, z)
+    elif cmd == "floor":
+        if len(a) >= 3: floor(float(a[1]), float(a[2]), float(a[3]) if len(a) > 3 else 5.5)
+        else:
+            x, _, z, _, _ = pose(); floor(x, z)
     elif cmd == "calib": do_calib()
     else: print(__doc__)
 

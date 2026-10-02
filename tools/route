@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Walk a sequence of waypoints: tools/route "x z" "x z" ...   (stops on first failure)
+for p in "$@"; do
+  r=$("$(dirname "$0")/nav" goto $p 0.45 2>&1 | tail -1)
+  case "$r" in arrived*) ;; *) echo "FAILED at waypoint $p: $r"; exit 1;; esac
+done
+"$(dirname "$0")/nav" pose

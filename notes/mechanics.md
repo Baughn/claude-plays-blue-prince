@@ -51,3 +51,7 @@
 - Green rooms (e.g. Terrace) don't cost gems to draft.
 - Chapel charges the coin EVERY time you pass through (lost 3 coins on Day 3 going back and forth). Avoid routing through it twice.
 - **Items** exist (counted in 'Items Found'): first one = **Small Coin Purse** (Parlor side table, Day 3): every 3 coins collected → +1 coin interest. Items appear in INVENTORY on the blueprint.
+- Doors are NOT always at wall midpoints (Billiard Room W door at z≈45, room centre z≈43.5). Find them by scanning the wall for a recess (nav casts) or by eye.
+- **Ivory Die** (Closet): consumable '+1 die' — while drafting, use to roll new floorplans. Closet 'items' can include keys (gold key = normal key).
+- Rooms come from a **Draft Pool**; some rooms (The Pool) ADD rooms to today's pool (Locker Room, Sauna, Pump Room).
+- **Security doors**: striped metal door with red keycard reader (Darkroom E wall, Day 3). Need keycard (or keycard system off + offline unlocked?).
