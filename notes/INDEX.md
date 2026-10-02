@@ -12,6 +12,7 @@ Read this first every session. Keep it short; details live in the linked files.
 - `journal/` — one file per in-game day/run, chronological (`day-001.md`, …)
 - `documents/` — verbatim text: notes, letters, signs, books, inscriptions
 - `puzzles/` — one file per suspected puzzle: what I know, attempts, status
+- `grounds.md` — outside map (coords)
 - `rooms.md` — catalogue of rooms seen: name, cost, doors, effects, contents
 - `mechanics.md` — rules of the game as I understand them
 - `open-questions.md` — unexplained things

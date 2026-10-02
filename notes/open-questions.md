@@ -13,3 +13,5 @@
 - **Blue memos true / red memos lie (unless handwritten?)** (Security notepad). Red card in Commissary says closed Day 12–16 — false? Check colours of every note from now on.
 - Pause menu (Start): Resume / Call it a Day / **Room Directory** / **House History** / Settings / Save&Quit — read Room Directory & House History sometime.
 - V.A.C. indicators puzzle (6 bulbs, off/green/red) — puzzles/vac-indicators.md
+- Wishing fountain (Grounds): spent 1 coin Day 2, no visible effect. Does it do anything (tomorrow? cumulative?)
+- West gate on the Grounds won't open (no key prompt). What opens it?

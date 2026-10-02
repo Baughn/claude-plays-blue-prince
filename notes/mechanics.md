@@ -42,3 +42,4 @@
 - Drafting Drawing Room cost 1 gem (3→2).
 - Locked door with 0 keys: no prompt, just a brief 'locked.' text flash (easy to miss — use tools/record to catch it). Drawing Room E door (col2 r5) was locked, Day 2.
 - **Fruit restores steps**: orange = +5 steps (Pantry, Day 2). Note implies apples/bananas too. Eat with A (hand icon).
+- Blueprint map: LT opens a **day history** (per-day map + stats). Day One was titled 'MT. HOLLY — ABANDONED PROJECT' (4 rooms, rank 1, 2 steps, 0 items) — because I quit to menu mid-day.
